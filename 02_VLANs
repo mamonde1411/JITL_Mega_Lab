@@ -1,9 +1,0 @@
-! 4일치를 날려서 2-7부터 다시 하기로... 
-! Save the PT file every hour!
-! Save separate PT file when each part is done.
-! 
-!
-! ======= ASW-A1 =======
-! F0/1 to LWAP1
-int f0/1
-sw access vlan 99
