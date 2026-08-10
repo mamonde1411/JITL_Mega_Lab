@@ -99,3 +99,4 @@ DSW-B1(config-if)#  standby 4 preempt
    - 단서: 소스 MAC이 0000.0C9F.F0XX (HSRP 가상 MAC, 끝자리=그룹 번호)
    - 원인: 양단 그룹 번호 불일치 → 둘 다 Active
    - 로그 확보: 있음 ✓
+7. Extension 쓰니 이렇게 편할수가...
