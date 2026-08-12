@@ -1,232 +1,389 @@
-! ======= DSW-A1 =======
+! ===== Part 3-1: ip address on R1 =====
+int g0/0/0
+  description ### to ISP A ###
+  ip add dhcp
+  no shutdown
 !
-! vlan 99 ip add & HSRPv2 group 1
-int vlan 99
-  ip add 10.0.0.2 255.255.255.240
-  standby version 2
-  standby 1 ip 10.0.0.1
-  standby 1 priority 105
-  standby 1 preempt
+int g0/1/0
+  description ### to ISP B ###
+  ip add dhcp
+  no shutdown
 !
+int g0/0
+  description ### to CSW1 G1/0/1 ###
+  ip add 10.0.0.33 255.255.255.252
+  no shutdown
 !
-! vlan 10 ip add & HSRPv2 group 2
-int vlan 10
-  ip add 10.1.0.2 255.255.255.0
-  standby version 2
-  standby 2 ip 10.1.0.1
-  standby 2 priority 105
-  standby 2 preempt 
+int g0/1
+  description ### to CSW2 G1/0/1 ###
+  ip add 10.0.0.37 255.255.255.252
+  no shutdown
 !
-!
-! vlan 20 ip add & HSRPv2 group 3
-int vlan 20
-  ip add 10.2.0.3 255.255.255.0
-  standby version 2
-  standby 3 ip 10.2.0.1
-  no shut
+int l0
+  description ### loopback0 ###
+  ip add 10.0.0.76 255.255.255.255
 !
 !
-! vlan 40 ip add & HSRPv2 group 4
-int vlan 40
-  ip add 10.6.0.3 255.255.255.0
-  standby version 2
-  standby 4 ip 10.6.0.1
-  no shut
+! ===== Part 3-2: IPv4 routing on all Core & Distribution Switches =====
+! On all Core & Distribution Switches
+ip routing
 !
 !
+! ===== Part 3-3: Pagp between CSW1 and CSW2 =====
+! On CSW1
+int range G1/0/2 - 3
+  description ### pagp to CSW2 G1/0/2 - 3 ###
+  no switchport
+  channel-group 1 mode desirable
+int po1
+  description ### pagp to CSW2 G1/0/2 - 3 ###
+  ip add 10.0.0.41 255.255.255.252
+  no shutdown
 !
-! ======= DSW-A2 =======
-! vlan 99 ip add & HSRPv2 group 1
-int vlan 99
-  ip add 10.0.0.3 255.255.255.240
-  standby version 2
-  standby 1 ip 10.0.0.1
-!
-!
-! vlan 10 ip add & HSRPv2 group 2
-int vlan 10
-  ip add 10.1.0.3 255.255.255.0
-  standby version 2
-  standby 2 ip 10.1.0.1
-!
-!
-! vlan 20 ip add & HSPRv2 group 3
-int vlan 20
-  ip add 10.2.0.2 255.255.255.0
-  standby version 2
-  standby 3 ip 10.2.0.1
-  standby 3 priority 105
-  standby 3 preempt
-  no shut
+! On CSW2
+int range G1/0/2 - 3
+  description ### pagp to CSW1 G1/0/2 - 3 ###
+  no switchport
+  channel-group 1 mode desirable
+int po1
+  description ### pagp to CSW1 G1/0/2 - 3 ###
+  ip add 10.0.0.42 255.255.255.252
+  no shutdown
 !
 !
-! vlan 40 ip add & HSPRv2 group 4
-int vlan 40
-  ip add 10.6.0.2 255.255.255.0
-  standby version 2
-  standby 4 ip 10.6.0.1
-  standby 4 priority 105
-  standby 4 preempt
-  no shut
+! ===== Part 3-4: IP addresses on CSW1 =====
 !
+int g1/0/1
+  description ### to R1 G0/0 ###
+  no switchport
+  ip add 10.0.0.34 255.255.255.252
+  no shutdown
 !
-! ======= DSW-B1 =======
-! G1/1/1 -> CSW1 G1/1/3
 int g1/1/1
-  description ### to CSW1 ###
+ description ### to DSW-A1 G1/1/1 ###
+  no switchport
+  ip add 10.0.0.45 255.255.255.252
+  no shutdown
+!
+int g1/1/2
+  description ### to DSW-A2 G1/1/1 ###
+  no switchport
+  ip add 10.0.0.49 255.255.255.252
+  no shutdown
+!
+int g1/1/3
+  description ### to DSW-B1 G1/1/1 ###
+  no switchport
+  ip add 10.0.0.53 255.255.255.252
+  no shutdown
+!
+int g1/1/4
+  description ### to DSW-B2 G1/1/1 ###
+  no switchport
+  ip add 10.0.0.57 255.255.255.252
+  no shutdown
+!
+int l0
+  description ### loopback0 ###
+  ip add 10.0.0.77 255.255.255.255
+!
+! Shutdown all unused ports on CSW1
+int range g1/0/4 - 24
+  shutdown
+!
+!
+! ===== Part 3-5: IP addresses on CSW2 =====
+!
+int g1/0/1
+  description ### to R1 G0/1 ###
+  no switchport
+  ip add 10.0.0.38 255.255.255.252
+  no shutdown
+!
+int g1/1/1
+ description ### to DSW-A1 G1/1/2 ###
+  no switchport
+  ip add 10.0.0.61 255.255.255.252
+  no shutdown
+!
+int g1/1/2
+  description ### to DSW-A2 G1/1/2 ###
+  no switchport
+  ip add 10.0.0.65 255.255.255.252
+  no shutdown
+!
+int g1/1/3
+  description ### to DSW-B1 G1/1/2 ###
+  no switchport
+  ip add 10.0.0.69 255.255.255.252
+  no shutdown
+!
+int g1/1/4
+  description ### to DSW-B2 G1/1/2 ###
+  no switchport
+  ip add 10.0.0.73 255.255.255.252
+  no shutdown
+!
+int l0
+  description ### loopback0 ###
+  ip add 10.0.0.78 255.255.255.255
+!
+! Shutdown all unused ports on CSW2
+int range g1/0/4 - 24
+  shutdown
+!
+!
+! ====== Part 3-6: IP addresses on DSW-A1 =====
+int g1/1/1
+  description ### to CSW1 G1/1/1 ###
+  no switchport
+  ip add 10.0.0.46 255.255.255.252
+  no shutdown
+!
+int g1/1/2
+  description ### to CSW2 G1/1/1 ###
+  no switchport
+  ip add 10.0.0.62 255.255.255.252
+  no shutdown
+!
+int l0
+  description ### loopback0 ###
+  ip add 10.0.0.79 255.255.255.255
+!
+!
+! ====== Part 3-7: IP addresses on DSW-A2 =====
+int g1/1/1
+  description ### to CSW1 G1/1/2 ###
+  no switchport
+  ip add 10.0.0.50 255.255.255.252
+  no shutdown
+!
+int g1/1/2
+  description ### to CSW2 G1/1/2 ###
+  no switchport
+  ip add 10.0.0.66 255.255.255.252
+  no shutdown
+!
+int l0
+  description ### loopback0 ###
+  ip add 10.0.0.80 255.255.255.255
+!
+!
+! ====== Part 3-8: IP addresses on DSW-B1 =====
+!
+int g1/1/1
+  description ### to CSW1 G1/1/3 ###
   no switchport
   ip add 10.0.0.54 255.255.255.252
   no shutdown
 !
-!
-! G1/1/2 -> CSW2 G1/1/3
 int g1/1/2
-  description ### to CSW2 ###
+  description ### to CSW2 G1/1/3 ###
   no switchport
   ip add 10.0.0.70 255.255.255.252
   no shutdown
 !
-!
-! Loopback0
 int l0
   description ### loopback0 ###
   ip add 10.0.0.81 255.255.255.255
 !
 !
-! vlan 99 ip add & HSRPv2 group 1
-int vlan 99
-  ip add 10.0.0.18 255.255.255.240
-  standby version 2
-  standby 1 ip 10.0.0.17
-  standby 1 priority 105
-  standby 1 preempt
-!
-!
-! vlan 10 ip add & HSRPv2 group 2
-int vlan 10
-  ip add 10.3.0.2 255.255.255.0
-  standby version 2
-  standby 2 ip 10.3.0.1
-  standby 2 priority 105
-  standby 2 preempt 
-!
-!
-! vlan 20 ip add & HSPRv2 group 3
-int vlan 20
-  ip add 10.4.0.2 255.255.255.0
-  standby version 2
-  standby 3 ip 10.4.0.1
-  standby 3 priority 105
-  standby 3 preempt
-!
-!
-! vlan 30 ip add & HSPRv2 group 4
-int vlan 30
-  ip add 10.5.0.2 255.255.255.0
-  standby version 2
-  standby 4 ip 10.5.0.1
-  standby 4 priority 105
-  standby 4 preempt
-!
-!
-!
-!
-! ======= DSW-B2 =======
-! G1/1/1 -> CSW1 G1/1/4
+! ====== Part 3-9: IP addresses on DSW-B2 =====
 int g1/1/1
   description ### to CSW1 G1/1/4 ###
   no switchport
   ip add 10.0.0.58 255.255.255.252
   no shutdown
 !
-!
-! G1/1/2 -> CSW2 G1/1/4
 int g1/1/2
   description ### to CSW2 G1/1/4 ###
   no switchport
   ip add 10.0.0.74 255.255.255.252
   no shutdown
 !
-!
-! Loopback0
 int l0
   description ### loopback0 ###
   ip add 10.0.0.82 255.255.255.255
 !
 !
+! ====== Part 3-10: Default Gateway & IP addressSRV1  =====
+! GUI에서 설정 (Desktop > IP Configuration)
+!   IP: 10.5.0.4 / 255.255.255.0 / GW: 10.5.0.1
 !
-! vlan 99 ip add & HSRPv2 group 1
+!
+! ===== Part 3-11: Management IP addresses (int vlan 99) On Access switches 
+! & default gateway - first usable address =====
+
+! ASW-A1
+int vlan 99
+  ip add 10.0.0.4 255.255.255.240
+  no shut
+  exit
+ip default-gateway 10.0.0.1
+
+! ASW-A2
+int vlan 99
+  ip add 10.0.0.5 255.255.255.240
+  no shut
+  exit
+ip default-gateway 10.0.0.1
+
+! ASW-A3
+int vlan 99
+  ip add 10.0.0.6 255.255.255.240
+  no shut
+  exit
+ip default-gateway 10.0.0.1
+
+! ASW-B1
+int vlan 99
+  ip add 10.0.0.20 255.255.255.240
+  no shut
+  exit
+ip default-gateway 10.0.0.17
+
+! ASW-B2
+int vlan 99
+  ip add 10.0.0.21 255.255.255.240
+  no shut
+  exit
+ip default-gateway 10.0.0.17
+
+! ASW-B3
+int vlan 99
+  ip add 10.0.0.22 255.255.255.240
+  no shut
+  exit
+ip default-gateway 10.0.0.17
+
+
+! ===== part 3-12: HSRPv2 for Office A's Management subnet (vlan 99) =====
+
+! DSW-A1 : ip add & HSRPv2 group 1 & Active & preempt on 
+int vlan 99
+  ip add 10.0.0.2 255.255.255.240
+  standby version 2
+  standby 1 ip 10.0.0.1
+  standby 1 priority 105
+  standby 1 preempt
+
+! DSW-A2 : ip add & HSRPv2 group 1
+int vlan 99
+  ip add 10.0.0.3 255.255.255.240
+  standby version 2
+  standby 1 ip 10.0.0.1
+
+
+! ===== part 3-13: HSRPv2 for Office A's PCs subnet (vlan 10) =====
+
+! DSW-A1 : vlan 10 ip add & HSRPv2 group 2 & Active & preempt on
+int vlan 10
+  ip add 10.1.0.2 255.255.255.0
+  standby version 2
+  standby 2 ip 10.1.0.1
+  standby 2 priority 105
+  standby 2 preempt
+
+! DSW-A2 : vlan 10 ip add & HSRPv2 group 2
+int vlan 10
+  ip add 10.1.0.3 255.255.255.0
+  standby version 2
+  standby 2 ip 10.1.0.1
+
+
+! ===== part 3-14: HSRPv2 for Office A's Phones subnet (vlan 20) =====
+
+! DSW-A1 : vlan 20 ip add & HSRPv2 group 3 
+int vlan 20
+  ip add 10.2.0.2 255.255.255.0
+  standby version 2
+  standby 3 ip 10.2.0.1
+
+! DSW-A2 : vlan 20 ip add & HSRPv2 group 3 & Active & preempt on
+int vlan 20
+  ip add 10.2.0.3 255.255.255.0
+  standby version 2
+  standby 3 ip 10.2.0.1
+  standby 3 priority 105
+  standby 3 preempt
+
+
+! ===== part 3-15: HSRPv2 for Office A's Wi-Fi subnet (vlan 40) =====
+
+! DSW-A1 : vlan 40 ip add & HSRPv2 group 4
+int vlan 40
+  ip add 10.6.0.2 255.255.255.0
+  standby version 2
+  standby 4 ip 10.6.0.1
+
+! DSW-A2 : vlan 40 ip add & HSRPv2 group 4 & Active & preempt on
+int vlan 40
+  ip add 10.6.0.3 255.255.255.0
+  standby version 2
+  standby 4 ip 10.6.0.1
+  standby 4 priority 105
+  standby 4 preempt
+
+
+! ===== part 3-16: HSRPv2 for Office B's Management subnet (vlan 99) =====
+
+! DSW-B1 : ip add & HSRPv2 group 1 & Active & preempt on
+int vlan 99
+  ip add 10.0.0.18 255.255.255.240
+  standby version 2
+  standby 1 ip 10.0.0.17
+  standby 1 priority 105
+  standby 1 preempt
+
+! DSW-B2 : ip add & HSRPv2 group 1
 int vlan 99
   ip add 10.0.0.19 255.255.255.240
   standby version 2
   standby 1 ip 10.0.0.17
-!
-!
-! vlan 10 ip add & HSRPv2 group 2
+
+
+! ===== part 3-17: HSRPv2 for Office B's PCs subnet (vlan 10) =====
+
+! DSW-B1 : vlan 10 ip add & HSRPv2 group 2 & Active & preempt on
+int vlan 10
+  ip add 10.3.0.2 255.255.255.0
+  standby version 2
+  standby 2 ip 10.3.0.1
+  standby 2 priority 105
+  standby 2 preempt
+
+! DSW-B2 : vlan 10 ip add & HSRPv2 group 2
 int vlan 10
   ip add 10.3.0.3 255.255.255.0
   standby version 2
   standby 2 ip 10.3.0.1
-!
-!
-! vlan 20 ip add & HSRPv2 group 3
+
+
+! ===== part 3-18: HSRPv2 for Office B's Phones subnet (vlan 20) =====  
+
+! DSW-B1 : vlan 20 ip add & HSRPv2 group 3
+int vlan 20
+  ip add 10.4.0.2 255.255.255.0
+  standby version 2
+  standby 3 ip 10.4.0.1
+
+! DSW-B2 : vlan 20 ip add & HSRPv2 group 3 & Active & preempt on
 int vlan 20
   ip add 10.4.0.3 255.255.255.0
   standby version 2
   standby 3 ip 10.4.0.1
-!
-!
-! vlan 30 ip add & HSRPv2 group 4
+  standby 3 priority 105
+  standby 3 preempt
+
+
+! ===== part 3-19: HSRPv2 for Office B's Servers subnet (vlan 30) =====
+
+! DSW-B1 : vlan 30 ip add & HSRPv2 group 4
 int vlan 30
-  ip add 10.5.0.3 255.255.255.0
+  ip add 10.5.0.2 255.255.255.0
   standby version 2
   standby 4 ip 10.5.0.1
 
-! ======= ASW-A1 =======
-! Default Gateway & vlan 99 SVI ip address
-ip default-gateway 10.0.0.1
-int vlan 99
-  ip add 10.0.0.4 255.255.255.240
-  no shut
-!
-!
-! ======= ASW-A2 =======
-! Default Gateway & vlan 99 SVI ip address
-ip default-gateway 10.0.0.1
-int vlan 99
-  ip add 10.0.0.5 255.255.255.240
-  no shut
-!
-!
-! ======= ASW-A3 =======
-! Default Gateway & vlan 99 SVI ip address
-ip default-gateway 10.0.0.1
-int vlan 99
-  ip add 10.0.0.6 255.255.255.240
-  no shut
-!
-!
-! ======= ASW-B1 =======
-! Default Gateway & vlan 99 SVI ip address
-ip default-gateway 10.0.0.17
-int vlan 99
-  ip add 10.0.0.20 255.255.255.240
-  no shut
-!
-!
-! ======= ASW-B2 =======
-! Default Gateway & vlan 99 SVI ip address
-ip default-gateway 10.0.0.17
-int vlan 99
-  ip add 10.0.0.21 255.255.255.240
-  no shut
-!
-!
-! ======= ASW-B3 =======
-! Default Gateway & vlan 99 SVI ip address
-ip default-gateway 10.0.0.17
-int vlan 99
-  ip add 10.0.0.22 255.255.255.240
-  no shut
-!
-!
+! DSW-B2 : vlan 30 ip add & HSRPv2 group 4 & Active & preempt on
+int vlan 30
+  ip add 10.5.0.3 255.255.255.0
