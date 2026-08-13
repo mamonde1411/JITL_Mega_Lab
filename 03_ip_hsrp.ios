@@ -387,3 +387,8 @@ int vlan 30
 ! DSW-B2 : vlan 30 ip add & HSRPv2 group 4 & Active & preempt on
 int vlan 30
   ip add 10.5.0.3 255.255.255.0
+  standby version 2
+  standby 4 ip 10.5.0.1
+  standby 4 priority 105
+  standby 4 preempt
+  
