@@ -1,8 +1,9 @@
 ! ===== Part 5-1: OSPF on R1, Core and DSW =====
 
 ! R1
-router ospf 1                                   !a
-  router-id 10.0.0.76                           !b
+! Don't need to do c, f
+router ospf 1
+  router-id 10.0.0.76
 
   passive-interface l0
 
@@ -13,8 +14,8 @@ int range g0/0 - 1
   ip ospf network point-to-point
 
 ! CSW1
-router ospf 1                                   !a
-  router-id 10.0.0.77                            !b
+router ospf 1
+  router-id 10.0.0.77
   
   network 10.0.0.34 0.0.0.0 area 0
   network 10.0.0.41 0.0.0.0 area 0
@@ -26,7 +27,7 @@ router ospf 1                                   !a
 
   passive-interface l0
 
-int range g1/1/1 - 4
+int range g1/1/1 - 4, g1/0/1
   ip ospf network point-to-point
 
 ! DSW-A1
