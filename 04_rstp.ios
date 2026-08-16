@@ -1,3 +1,52 @@
 ! ===== Part 4-1: Rapid PVST+ on all ASW & DSW =====
 
-! =====DSW-A1=====
+! DSW-A1
+spanning-tree mode rapid-pvst
+spanning-tree vlan 99 priority 0
+spanning-tree vlan 10 priority 0
+spanning-tree vlan 20 priority 4096
+spanning-tree vlan 40 priority 4096
+
+! DSW-A2
+spanning-tree mode rapid-pvst
+spanning-tree vlan 99 priority 4096
+spanning-tree vlan 10 priority 4096
+spanning-tree vlan 20 priority 0
+spanning-tree vlan 40 priority 0
+
+! DSW-B1
+spanning-tree mode rapid-pvst
+spanning-tree vlan 99 priority 0
+spanning-tree vlan 10 priority 0
+spanning-tree vlan 20 priority 4096
+spanning-tree vlan 30 priority 4096
+
+! DSW-B2
+spanning-tree mode rapid-pvst
+spanning-tree vlan 99 priority 4096
+spanning-tree vlan 10 priority 4096
+spanning-tree vlan 20 priority 0
+spanning-tree vlan 30 priority 0
+
+! All ASWs
+spanning-tree mode rapid-pvst
+
+
+! ===== Part 4-2: PortFast and BPDU Guard on all ASWs =====
+
+! ASW-A1
+int f0/1
+  spanning-tree portfast
+  spanning-tree bpduguard enable
+
+int f0/2
+  spanning-tree portfast trunk
+  spanning-tree bpduguard enable
+
+! ASW-A2, A3, B1, B2, B3
+spanning-tree mode rapid-pvst
+
+
+int f0/1
+  spanning-tree portfast
+  spanning-tree bpduguard enable
