@@ -50,3 +50,4 @@ spanning-tree mode rapid-pvst
 int f0/1
   spanning-tree portfast
   spanning-tree bpduguard enable
+
