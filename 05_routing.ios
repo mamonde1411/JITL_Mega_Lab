@@ -1,21 +1,28 @@
 ! ===== Part 5-1: OSPF on R1, Core and DSW =====
+! - process 1, area 0
+  - RID = Loopback0 IP address
+  - switches: network command for each interface with IP address
+  - R1: OSPF in interface config mode
+  - loopback + SVI(관리 제외) should be passive
+  - All physical connections use ptp except Po1
 
 ! R1
-! Don't need to do c, f
 router ospf 1
   router-id 10.0.0.76
-
   passive-interface l0
 
-int range g0/0 - 1, l0
+int range g0/0 - 1
+  ip ospf 1 area 0
+  ip ospf network point-to-point
+
+int l0
   ip ospf 1 area 0
 
-int range g0/0 - 1
-  ip ospf network point-to-point
 
 ! CSW1
 router ospf 1
   router-id 10.0.0.77
+  passive-interface l0
   
   network 10.0.0.34 0.0.0.0 area 0
   network 10.0.0.41 0.0.0.0 area 0
@@ -25,9 +32,129 @@ router ospf 1
   network 10.0.0.57 0.0.0.0 area 0
   network 10.0.0.77 0.0.0.0 area 0
 
-  passive-interface l0
-
+! Po1(CSW1-2)은 network type 변경 제외
 int range g1/1/1 - 4, g1/0/1
   ip ospf network point-to-point
 
+
+! CSW2
+router ospf 1
+    router-id 10.0.0.78
+    passive-interface l0
+
+    network 10.0.0.38 0.0.0.0 area 0
+    network 10.0.0.42 0.0.0.0 area 0
+    network 10.0.0.61 0.0.0.0 area 0
+    network 10.0.0.65 0.0.0.0 area 0
+    network 10.0.0.69 0.0.0.0 area 0
+    network 10.0.0.73 0.0.0.0 area 0
+    network 10.0.0.78 0.0.0.0 area 0
+
+! Po1(CSW1-2)은 network type 변경 제외
+int range g1/1/1 - 4, g1/0/1
+    ip ospf network point-to-point
+
+
 ! DSW-A1
+router ospf 1
+    router-id 10.0.0.79
+
+! default 방식으로.
+! 실무에서는 이 방식을 선호.
+! 새 인터페이스를 추가했을 때 기본이 passive라 실수로 OSPF Hello가 새어나가지 않고
+! 인터페이스가 많을 수록 유리하기 때문
+
+    passive-interface default
+    no passive-interface g1/1/1
+    no passive-interface g1/1/2
+    no passive-interface vlan 99
+
+    network 10.0.0.46 0.0.0.0 area 0
+    network 10.0.0.62 0.0.0.0 area 0
+    network 10.0.0.79 0.0.0.0 area 0
+    network 10.1.0.2 0.0.0.0 area 0
+    network 10.2.0.2 0.0.0.0 area 0
+    network 10.6.0.2 0.0.0.0 area 0
+    network 10.0.0.2 0.0.0.0 area 0
+
+
+int range g1/1/1 - 2
+    ip ospf network point-to-point
+
+! DSW-A2
+router ospf 1
+    router-id 10.0.0.80
+
+! default 방식으로.
+    passive-interface default
+    no passive-interface g1/1/1
+    no passive-interface g1/1/2
+    no passive-interface vlan 99
+
+
+    network 10.0.0.50 0.0.0.0 area 0
+    network 10.0.0.66 0.0.0.0 area 0
+    network 10.0.0.80 0.0.0.0 area 0
+    network 10.1.0.3 0.0.0.0 area 0
+    network 10.2.0.3 0.0.0.0 area 0
+    network 10.6.0.3 0.0.0.0 area 0
+    network 10.0.0.3 0.0.0.0 area 0
+
+
+int range g1/1/1 - 2
+    ip ospf network point-to-point
+
+! DSW-B1
+router ospf 1
+    router-id 10.0.0.81
+
+! default 방식으로.
+    passive-interface default
+    no passive-interface g1/1/1
+    no passive-interface g1/1/2
+    no passive-interface vlan 99
+
+    network 10.0.0.54 0.0.0.0 area 0
+    network 10.0.0.70 0.0.0.0 area 0
+    network 10.0.0.81 0.0.0.0 area 0
+    network 10.3.0.2 0.0.0.0 area 0
+    network 10.4.0.2 0.0.0.0 area 0
+    network 10.5.0.2 0.0.0.0 area 0
+    network 10.0.0.18 0.0.0.0 area 0
+
+
+int range g1/1/1 - 2
+    ip ospf network point-to-point
+
+! DSW-B2
+router ospf 1
+    router-id 10.0.0.82
+
+! default 방식으로.
+    passive-interface default
+    no passive-interface g1/1/1
+    no passive-interface g1/1/2
+    no passive-interface vlan 99
+
+    network 10.0.0.58 0.0.0.0 area 0
+    network 10.0.0.74 0.0.0.0 area 0
+    network 10.0.0.82 0.0.0.0 area 0
+    network 10.3.0.3 0.0.0.0 area 0
+    network 10.4.0.3 0.0.0.0 area 0
+    network 10.5.0.3 0.0.0.0 area 0
+    network 10.0.0.19 0.0.0.0 area 0
+
+int range g1/1/1 - 2
+    ip ospf network point-to-point
+
+
+! ===== Part 5-1: OSPF on R1, Core and DSW =====
+! - Route to Internet ISP A and B
+! - Floating static route via 203.0.113.5, R1 G0/1/0
+! - R1 = OSPF ASBR
+
+ip route 0.0.0.0 0.0.0.0 203.0.113.1 
+ip route 0.0.0.0 0.0.0.0 203.0.113.5 2
+
+router ospf 1
+    default-information originate
